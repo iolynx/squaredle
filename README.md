@@ -1,0 +1,2 @@
+# Squaredle
+ Squaredle Clone
