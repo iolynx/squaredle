@@ -37,11 +37,11 @@ const generateRandomBoard = (rows, cols) => {
     const row = []
     for (let j = 0; j < cols; j++) {
       let randomChar = '';
-      if (j % 2 == 0){
+      if (j % 2 == 0) {
         randomChar = characters[Math.floor(Math.random() * v.length)];
         v = v.replace(randomChar, '');
       }
-      else{
+      else {
         randomChar = characters[Math.floor(Math.random() * c.length)];
         c = c.replace(randomChar, '');
       }
@@ -50,19 +50,19 @@ const generateRandomBoard = (rows, cols) => {
     board.push(row);
   }
 
-  let startPos = [getRandomIntInRange(0, rows-1), getRandomIntInRange(0, cols-1)];
+  let startPos = [getRandomIntInRange(0, rows - 1), getRandomIntInRange(0, cols - 1)];
   let d = [[0, 1], [1, 0], [1, 1], [-1, 0], [0, -1], [-1, -1], [1, -1], [-1, 1]];
   let visited = [];
-  for(let l = 0; l < 10; ++l){
+  for (let l = 0; l < 10; ++l) {
     d = shuffleArray(d);
     let choose = d[0];
     let newPos = [startPos[0] + choose[0], startPos[1] + choose[1]];
     let attempts = 0;
-    while ((newPos[0] < 0 || newPos[0] > rows-1 || newPos[1] < 0 || newPos[1] > cols-1) || (isInVisited(visited, newPos))){
+    while ((newPos[0] < 0 || newPos[0] > rows - 1 || newPos[1] < 0 || newPos[1] > cols - 1) || (isInVisited(visited, newPos))) {
       choose = d[attempts];
       newPos = [startPos[0] + choose[0], startPos[1] + choose[1]];
-      attempts ++;
-      if(attempts >= 100){
+      attempts++;
+      if (attempts >= 100) {
         console.log("kys");
         break;
       }
@@ -81,6 +81,8 @@ const Board = ({ rows = 4, cols = 4 }) => {
   const [selectedPath, setSelectedPath] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [currentWord, setCurrentWord] = useState("");
+  const [defaultStyle, setDefaultStyle] = useState(true);
+
 
   const regenerateBoard = () => {
     setBoard(generateRandomBoard(rows, cols));
@@ -88,9 +90,9 @@ const Board = ({ rows = 4, cols = 4 }) => {
   };
 
   const onMouseDown = (rowIndex, colIndex) => {
-    console.log("Mouse Clicked");
     setIsDragging(true);
     setSelectedPath([[rowIndex, colIndex]]);
+    setDefaultStyle(false);
   };
 
   const onMouseMove = (rowIndex, colIndex) => {
@@ -114,11 +116,16 @@ const Board = ({ rows = 4, cols = 4 }) => {
 
   const onMouseUp = () => {
     setIsDragging(false);
+    setDefaultStyle(true);
+    setDefaultStyle(true);
+    setDefaultStyle(true);
+    setDefaultStyle(true);
+    setDefaultStyle(true);
     let selectedWord = "";
-    for(let i = 0; i < selectedPath.length; ++i){
+    for (let i = 0; i < selectedPath.length; ++i) {
       selectedWord += board[selectedPath[i][0]][selectedPath[i][1]];
     }
-    console.log(selectedWord);
+    console.log("Final Word: ", selectedWord);
     setSelectedPath([]);
   };
 
@@ -126,16 +133,25 @@ const Board = ({ rows = 4, cols = 4 }) => {
     if (selectedPath.length > 1) {
       // console.log(pos);
       return selectedPath.map((pos, index) => (
-        <line
-          key={index}
-          x1={pos[1] * 130 + 80} // Adjust for the position in the grid
-          y1={pos[0] * 130 + 80}
-          x2={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * 130 + 80}
-          y2={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * 130 + 80}
-          stroke="red"
-          strokeWidth="30"
-          opacity={0.5}
-        />
+        <>
+          <line
+            key={index}
+            x1={pos[1] * 134 + 70} // Adjust for the position in the grid
+            y1={pos[0] * 134 + 75}
+            x2={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * 134 + 70}
+            y2={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * 134 + 75}
+            stroke="red"
+            strokeWidth="30"
+            opacity={0.45}
+          />
+          <circle
+            r="15px"
+            cx={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * 134 + 70}
+            cy={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * 134 + 75}
+            fill="red"
+            opacity={0.45}
+          />
+        </>
       ));
     }
     return null;
@@ -156,10 +172,19 @@ const Board = ({ rows = 4, cols = 4 }) => {
             width: '500px',
             height: '500px',
             zIndex: 1,
-            pointerEvents: "none" // Prevent SVG from capturing mouse events
+            pointerEvents: "none",
+            radius: "5px"
           }}
         >
-          {renderPath()}
+          <filter id="constantOpacity">
+            <feComponentTransfer>
+              <feFuncA type="table" tableValues="0 .5 .5" />
+            </feComponentTransfer>
+          </filter>
+          <g filter="url(#constantOpacity)">
+            {renderPath()}
+          </g>
+
         </svg>
 
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, auto)`, gap: "10px" }}>
@@ -170,6 +195,7 @@ const Board = ({ rows = 4, cols = 4 }) => {
                 onMouseDown={() => onMouseDown(rowIndex, colIndex)}
                 onMouseMove={() => onMouseMove(rowIndex, colIndex)}
                 onMouseUp={onMouseUp}
+                defaultStyle={defaultStyle}
               >
                 {char}
               </Tile>

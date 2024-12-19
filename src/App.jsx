@@ -11,7 +11,7 @@ function App() {
       <div className="card">
       </div>
       <div className="game">
-        <Board/>
+        <Board />
       </div>
     </>
   );
