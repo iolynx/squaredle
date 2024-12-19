@@ -88,7 +88,7 @@ const Board = ({ rows = 4, cols = 4 }) => {
   };
 
   const onMouseDown = (rowIndex, colIndex) => {
-    console.log("i am gay as fuck");
+    console.log("Mouse Clicked");
     setIsDragging(true);
     setSelectedPath([[rowIndex, colIndex]]);
   };

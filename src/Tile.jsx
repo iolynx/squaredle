@@ -1,6 +1,6 @@
-import React from 'react';
 import './App.css';
 
+// eslint-disable-next-line react/prop-types
 const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children }) => {
   function onMouseDown2(){
     console.log(children);

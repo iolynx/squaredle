@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import './App.css'
-import Tile from './Tile'
 import Board from './Board';
 
 function App() {
