@@ -52,15 +52,15 @@
 }
 
 .tile {
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 60px;
   text-align: center;
   border: 2px black solid;
   align-items: center;
   display: flex;
   justify-content: center;
   border-radius: 20px;
-  padding: 35px 35px;
+  padding: 26px 15px;
   background-color: #888;
   font-size: large;
   -webkit-user-select: none;

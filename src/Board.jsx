@@ -1,90 +1,24 @@
-import React, { useState } from "react";
-import wordList from "word-list-json";
+import { useState } from "react";
 import Tile from "./Tile";
+import { generateRandomBoard } from "./helper.jsx"
 
-const isInVisited = (visited, position) => {
-  return visited.some(item => JSON.stringify(item) === JSON.stringify(position));
-};
 
-function getRandomIntInRange(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// eslint-disable-next-line react/prop-types
+const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
-const getRandomNLetterWord = (n) => {
-  const filteredWords = wordList.filter(word => word.length === n);
-  return filteredWords[Math.floor(Math.random() * filteredWords.length)];
-};
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-const generateRandomBoard = (rows, cols) => {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // Characters to choose from
-  const vowels = "AEIOUYAEIOUYAEO";
-  const consonants = "BCDFGHJKLMNPQRSTVWXZ";
-  const randomWord = getRandomNLetterWord(10);
-  console.log("random word is: ", randomWord);
-  let v = vowels
-  let c = consonants;
-  let board = []
-
-  for (let i = 0; i < rows; i++) {
-    const row = []
-    for (let j = 0; j < cols; j++) {
-      let randomChar = '';
-      if (j % 2 == 0) {
-        randomChar = characters[Math.floor(Math.random() * v.length)];
-        v = v.replace(randomChar, '');
-      }
-      else {
-        randomChar = characters[Math.floor(Math.random() * c.length)];
-        c = c.replace(randomChar, '');
-      }
-      row.push(randomChar);
-    }
-    board.push(row);
-  }
-
-  let startPos = [getRandomIntInRange(0, rows - 1), getRandomIntInRange(0, cols - 1)];
-  let d = [[0, 1], [1, 0], [1, 1], [-1, 0], [0, -1], [-1, -1], [1, -1], [-1, 1]];
-  let visited = [];
-  for (let l = 0; l < 10; ++l) {
-    d = shuffleArray(d);
-    let choose = d[0];
-    let newPos = [startPos[0] + choose[0], startPos[1] + choose[1]];
-    let attempts = 0;
-    while ((newPos[0] < 0 || newPos[0] > rows - 1 || newPos[1] < 0 || newPos[1] > cols - 1) || (isInVisited(visited, newPos))) {
-      choose = d[attempts];
-      newPos = [startPos[0] + choose[0], startPos[1] + choose[1]];
-      attempts++;
-      if (attempts >= 100) {
-        console.log("kys");
-        break;
-      }
-    }
-    console.log(newPos, randomWord[l].toUpperCase());
-    visited.push(newPos);
-    board[newPos[0]][newPos[1]] = randomWord[l].toUpperCase();
-    startPos = newPos;
-  }
-  return board;
-};
-
-const Board = ({ rows = 4, cols = 4 }) => {
-
-  const [board, setBoard] = useState(() => generateRandomBoard(rows, cols));
+  // const [board, setBoard] = useState(() => generateRandomBoard(rows, cols));
+  const [board, setBoard] = useState([]);
   const [selectedPath, setSelectedPath] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentWord, setCurrentWord] = useState("");
+  const [currentWord, setCurrentWord] = useState("->");
   const [defaultStyle, setDefaultStyle] = useState(true);
+  const [rows, setRows] = useState(initialRows);
+  const [cols, setCols] = useState(initialCols);
 
 
-  const regenerateBoard = () => {
+  const regenerateBoard = (rows, cols) => {
+    setRows(rows);
+    setCols(cols);
     setBoard(generateRandomBoard(rows, cols));
     setSelectedPath([]);
   };
@@ -99,6 +33,7 @@ const Board = ({ rows = 4, cols = 4 }) => {
     if (isDragging) {
       setSelectedPath((prevPath) => {
         const lastPos = prevPath[prevPath.length - 1];
+        console.log("LastPos: ", lastPos);
         const newPos = [rowIndex, colIndex];
         if (Math.abs(lastPos[0] - rowIndex) <= 1 && Math.abs(lastPos[1] - colIndex) <= 1 && !prevPath.some(pos => JSON.stringify(pos) === JSON.stringify(newPos))) {
           let selectedWord = "";
@@ -115,12 +50,8 @@ const Board = ({ rows = 4, cols = 4 }) => {
   };
 
   const onMouseUp = () => {
+    setDefaultStyle(true);
     setIsDragging(false);
-    setDefaultStyle(true);
-    setDefaultStyle(true);
-    setDefaultStyle(true);
-    setDefaultStyle(true);
-    setDefaultStyle(true);
     let selectedWord = "";
     for (let i = 0; i < selectedPath.length; ++i) {
       selectedWord += board[selectedPath[i][0]][selectedPath[i][1]];
@@ -129,25 +60,41 @@ const Board = ({ rows = 4, cols = 4 }) => {
     setSelectedPath([]);
   };
 
+  function handleMouseLeave() {
+    setDefaultStyle(true);
+    setIsDragging(false);
+    setSelectedPath([]);
+  }
+
+  function handleMouseUp() {
+    setDefaultStyle(true);
+    setIsDragging(false);
+    setSelectedPath([]);
+  }
+
+
   const renderPath = () => {
     if (selectedPath.length > 1) {
       // console.log(pos);
+      const mul = 130;
+      const xadd = 58;
+      const yadd = 63;
       return selectedPath.map((pos, index) => (
         <>
           <line
             key={index}
-            x1={pos[1] * 134 + 70} // Adjust for the position in the grid
-            y1={pos[0] * 134 + 75}
-            x2={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * 134 + 70}
-            y2={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * 134 + 75}
+            x1={pos[1] * mul + xadd}
+            y1={pos[0] * mul + yadd}
+            x2={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * mul + xadd}
+            y2={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * mul + yadd}
             stroke="red"
             strokeWidth="30"
             opacity={0.45}
           />
           <circle
             r="15px"
-            cx={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * 134 + 70}
-            cy={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * 134 + 75}
+            cx={(selectedPath[index + 1] ? selectedPath[index + 1][1] : pos[1]) * mul + xadd}
+            cy={(selectedPath[index + 1] ? selectedPath[index + 1][0] : pos[0]) * mul + yadd}
             fill="red"
             opacity={0.45}
           />
@@ -160,8 +107,16 @@ const Board = ({ rows = 4, cols = 4 }) => {
   return (
     <div>
       <h1>{currentWord}</h1>
-      <button onClick={regenerateBoard} style={{ marginBottom: "10px", padding: "10px" }}>
-        Generate New Board
+
+      <h2>Generate New Board: </h2>
+      <button onClick={() => regenerateBoard(3, 3)} style={{ marginBottom: "10px", padding: "10px" }}>
+        3x3
+      </button>
+      <button onClick={() => regenerateBoard(4, 4)} style={{ marginBottom: "10px", padding: "10px" }}>
+        4x4
+      </button>
+      <button onClick={() => regenerateBoard(5, 5)} style={{ marginBottom: "10px", padding: "10px" }}>
+        5x5
       </button>
       <div style={{ position: "relative" }}>
         <svg
@@ -169,8 +124,8 @@ const Board = ({ rows = 4, cols = 4 }) => {
             position: "absolute",
             top: 0,
             left: 0,
-            width: '500px',
-            height: '500px',
+            width: '600px',
+            height: '600px',
             zIndex: 1,
             pointerEvents: "none",
             radius: "5px"
@@ -187,7 +142,15 @@ const Board = ({ rows = 4, cols = 4 }) => {
 
         </svg>
 
-        <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, auto)`, gap: "10px" }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${cols}, 114px)`,
+          rowGap: "15px",
+          columnGap: "15px"
+        }}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+        >
           {board.map((row, rowIndex) =>
             row.map((char, colIndex) => (
               <Tile

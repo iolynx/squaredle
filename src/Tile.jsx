@@ -49,7 +49,7 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
           backgroundColor: "rgb(180, 180, 180)",
           cursor: "pointer",
           userSelect: "none", // Prevent text selection
-          position: "relative"
+          position: "relative",
         }
       }
     }
@@ -59,22 +59,31 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
       // boxShadow: "2px 2px black",
       cursor: "pointer",
       userSelect: "none", // Prevent text selection
-      position: "relative"
+      position: "relative",
     }
   };
 
   return (
     <div className="tile"
       style={handleTileStyle(defaultStyle, changeStyle)}
-      onMouseDown={handleMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onMouseEnter={handleMouseEnter}
     >
-      <h1>
-        {children}
-      </h1>
+      <div
+        style={{
+          // padding: "10px 10px",
+          height: "75px",
+          width: "75px"
+
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onMouseEnter={handleMouseEnter}
+      >
+        <h1 style={{ margin: "0px" }}>
+          {children}
+        </h1>
+      </div>
     </div>
   );
 };
