@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard } from "./helper.jsx"
+import { generateRandomBoard, spelledCorrectly } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -11,63 +11,125 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const [selectedPath, setSelectedPath] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [currentWord, setCurrentWord] = useState("->");
-  const [defaultStyle, setDefaultStyle] = useState(true);
   const [rows, setRows] = useState(initialRows);
   const [cols, setCols] = useState(initialCols);
+  const [defaultStyle, setDefaultStyle] = useState([]);
+  const [points, setPoints] = useState(0);
+
+  // Helper function to generate the array
+  const generateArray = (rows, cols, initialValue = true) => {
+    return Array.from({ length: rows }, () => Array(cols).fill(initialValue));
+  };
+
+  // Regenerate the array when rows or cols changes
+  useEffect(() => {
+    setDefaultStyle(generateArray(rows, cols));
+  }, [rows, cols]);
+
+  const setDefaultStyleAt = (rowIndex, colIndex, value) => {
+    setDefaultStyle((prev) => {
+      const newArray = prev.map((row, rIndex) =>
+        row.map((cell, cIndex) =>
+          rIndex === rowIndex && cIndex === colIndex ? value : cell
+        )
+      );
+      return newArray;
+    });
+  };
+
+  const setDefaultStyleAll = (value) => {
+    const newArray = Array.from({ length: rows }, () => Array(cols).fill(value));
+    setDefaultStyle(newArray);
+  };
 
 
   const regenerateBoard = (rows, cols) => {
     setRows(rows);
     setCols(cols);
-    setBoard(generateRandomBoard(rows, cols));
+    setPoints(0);
+    setCurrentWord("");
+    setDefaultStyle(generateArray(rows, cols));
+    const lwToggle = document.getElementById('lwtoggle');
+    if (lwToggle.checked) {
+      console.log("long words enabled");
+    }
+    setBoard(generateRandomBoard(rows, cols, lwToggle.checked));
     setSelectedPath([]);
   };
 
   const onMouseDown = (rowIndex, colIndex) => {
     setIsDragging(true);
     setSelectedPath([[rowIndex, colIndex]]);
-    setDefaultStyle(false);
+    setDefaultStyleAt(rowIndex, colIndex, false);
   };
 
   const onMouseMove = (rowIndex, colIndex) => {
     if (isDragging) {
       setSelectedPath((prevPath) => {
         const lastPos = prevPath[prevPath.length - 1];
-        console.log("LastPos: ", lastPos);
         const newPos = [rowIndex, colIndex];
-        if (Math.abs(lastPos[0] - rowIndex) <= 1 && Math.abs(lastPos[1] - colIndex) <= 1 && !prevPath.some(pos => JSON.stringify(pos) === JSON.stringify(newPos))) {
+
+        // Check if the cell is already part of the selected path
+        const existingIndex = prevPath.findIndex(pos => JSON.stringify(pos) === JSON.stringify(newPos));
+
+        if (existingIndex !== -1) {
+          // If the cell is part of the path, cut the path till that cell
+          const newPath = prevPath.slice(0, existingIndex + 1);
+          const deletePath = prevPath.slice(existingIndex + 1, prevPath.length);
+          // console.log(deletePath);
+
           let selectedWord = "";
-          for (let i = 0; i < selectedPath.length; ++i) {
-            selectedWord += board[selectedPath[i][0]][selectedPath[i][1]];
+          for (let i = 0; i < newPath.length; ++i) {
+            selectedWord += board[newPath[i][0]][newPath[i][1]];
+          }
+
+          for (let i = 0; i < deletePath.length; ++i) {
+            setDefaultStyleAt(deletePath[i][0], deletePath[i][1], true);
+          }
+          setCurrentWord(selectedWord);
+          return newPath;
+        }
+
+        // Check if the new position is one cell away from the last position
+        if (Math.abs(lastPos[0] - rowIndex) <= 1 && Math.abs(lastPos[1] - colIndex) <= 1) {
+          let selectedWord = "";
+          for (let i = 0; i < prevPath.length; ++i) {
+            selectedWord += board[prevPath[i][0]][prevPath[i][1]];
           }
           selectedWord += board[newPos[0]][newPos[1]];
           setCurrentWord(selectedWord);
+          setDefaultStyleAt(rowIndex, colIndex, false);
           return [...prevPath, newPos];
         }
+
         return prevPath;
       });
     }
   };
 
   const onMouseUp = () => {
-    setDefaultStyle(true);
+    // setDefaultStyle(true);
+    setDefaultStyleAll(true);
     setIsDragging(false);
     let selectedWord = "";
     for (let i = 0; i < selectedPath.length; ++i) {
       selectedWord += board[selectedPath[i][0]][selectedPath[i][1]];
     }
     console.log("Final Word: ", selectedWord);
+    if (spelledCorrectly(selectedWord)) {
+      setPoints((prevPoints) => prevPoints + selectedWord.length * 3);
+    }
     setSelectedPath([]);
   };
 
   function handleMouseLeave() {
-    setDefaultStyle(true);
+    setDefaultStyleAll(true);
     setIsDragging(false);
     setSelectedPath([]);
   }
 
   function handleMouseUp() {
-    setDefaultStyle(true);
+    setDefaultStyleAll(true);
     setIsDragging(false);
     setSelectedPath([]);
   }
@@ -105,20 +167,12 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   };
 
   return (
-    <div>
+    <div style={{ alignItems: "center", justifyContent: "center" }}>
+      <h1>{points} points</h1>
+
       <h1>{currentWord}</h1>
 
-      <h2>Generate New Board: </h2>
-      <button onClick={() => regenerateBoard(3, 3)} style={{ marginBottom: "10px", padding: "10px" }}>
-        3x3
-      </button>
-      <button onClick={() => regenerateBoard(4, 4)} style={{ marginBottom: "10px", padding: "10px" }}>
-        4x4
-      </button>
-      <button onClick={() => regenerateBoard(5, 5)} style={{ marginBottom: "10px", padding: "10px" }}>
-        5x5
-      </button>
-      <div style={{ position: "relative" }}>
+      <div style={{ position: "relative", margin: "10px 95px" }}>
         <svg
           style={{
             position: "absolute",
@@ -146,7 +200,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, 114px)`,
           rowGap: "15px",
-          columnGap: "15px"
+          columnGap: "15px",
         }}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
@@ -158,7 +212,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
                 onMouseDown={() => onMouseDown(rowIndex, colIndex)}
                 onMouseMove={() => onMouseMove(rowIndex, colIndex)}
                 onMouseUp={onMouseUp}
-                defaultStyle={defaultStyle}
+                defaultStyle={defaultStyle[rowIndex][colIndex]}
               >
                 {char}
               </Tile>
@@ -166,6 +220,37 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
           )}
         </div>
       </div>
+      <fieldset>
+        <legend> <h2> &nbsp; Generate New Board: &nbsp; </h2> </legend>
+        <div className="container">
+          <div>
+            <button onClick={() => regenerateBoard(3, 3)}>
+              3x3
+            </button>
+            <button onClick={() => regenerateBoard(4, 4)}>
+              4x4
+            </button>
+            <button onClick={() => regenerateBoard(5, 5)}>
+              5x5
+            </button>
+            <h3> Long Word: </h3>
+            <label className="switch">
+              <input type="checkbox" id="lwtoggle" />
+              <span className="slider round"></span>
+            </label>
+            <h4> Seed: (optional) </h4>
+          </div>
+          <hr />
+          <div style={{ alignItems: "center", display: "inline" }}>
+            <h3> Board Code: </h3>
+            <textarea />
+            <br />
+            <button>
+              Go!
+            </button>
+          </div>
+        </div>
+      </fieldset>
     </div>
   );
 };

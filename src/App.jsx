@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <div>
-        <h1>Shitty Squaredle Clone</h1>
+        <h1>Okayish Squaredle Clone</h1>
       </div>
       <div className="game">
         <Board />
