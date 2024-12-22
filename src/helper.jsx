@@ -8,9 +8,11 @@ function getRandomIntInRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+
 const getRandomNLetterWord = (n) => {
   return generate({ minLength: n, maxLength: n });
 };
+
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -71,7 +73,7 @@ export function generateRandomBoard(rows, cols, longWords) {
         newPos = [startPos[0] + choose[0], startPos[1] + choose[1]];
         attempts++;
         if (attempts >= 100) {
-          console.log("kys");
+          console.log("unable to cook");
           break;
         }
       }
