@@ -8,6 +8,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   // const [board, setBoard] = useState(() => generateRandomBoard(rows, cols));
   const [board, setBoard] = useState([]);
+  const [isAnimating, setIsAnimating] = useState(false)
   const [selectedPath, setSelectedPath] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [currentWord, setCurrentWord] = useState("->");
@@ -107,6 +108,11 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     }
   };
 
+  const triggerAnimation = () => {
+    setIsAnimating(false)
+    setTimeout(() => setIsAnimating(true), 10)
+  }
+
   const onMouseUp = () => {
     // setDefaultStyle(true);
     setDefaultStyleAll(true);
@@ -118,6 +124,10 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     console.log("Final Word: ", selectedWord);
     if (spelledCorrectly(selectedWord)) {
       setPoints((prevPoints) => prevPoints + selectedWord.length * 3);
+      setIsAnimating(false)
+    } else {
+      console.log('aimating')
+      triggerAnimation()
     }
     setSelectedPath([]);
   };
@@ -170,7 +180,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     <div style={{ alignItems: "center", justifyContent: "center" }}>
       <h1>{points} points</h1>
 
-      <h1>{currentWord}</h1>
+      <h1 className={isAnimating ? "shaking-fade" : ""}> {currentWord} </h1>
 
       <div style={{ position: "relative", margin: "10px 95px" }}>
         <svg

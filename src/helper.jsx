@@ -1,4 +1,6 @@
 import { generate } from "random-words";
+import wordsDictionary from './assets/words_dictionary.json';
+// import { findAllWords } from "./assets/driver";
 
 const isInVisited = (visited, position) => {
   return visited.some(item => JSON.stringify(item) === JSON.stringify(position));
@@ -83,9 +85,21 @@ export function generateRandomBoard(rows, cols, longWords) {
       startPos = newPos;
     }
   }
+  let words = findAllWords(board);
+  console.log(words)
   return board;
 };
 
+function findAllWords(board) {
+  // rewrite the python function here 
+}
+
 export const spelledCorrectly = (word) => {
-  return (word.length > 3);
+  console.log("word is: ", word)
+  if (word.length > 3 && wordsDictionary[word.toLowerCase()] == 1) {
+    console.log("this word is: legit")
+    return true
+  }
+  return false
+
 }
