@@ -92,6 +92,7 @@ export function generateRandomBoard(rows, cols, longWords) {
 
 function findAllWords(board) {
   // rewrite the python function here 
+  // another comment
 }
 
 export const spelledCorrectly = (word) => {
