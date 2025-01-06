@@ -168,6 +168,51 @@ input:checked+.slider:before {
 }
 
 
+.score-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.score {
+  font-size: 3rem;
+}
+
+.old-score {
+  z-index: 1;
+  /* Keeps the old score visible */
+}
+
+.animated-score {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  /* Ensures it overlays on top of the old score */
+  /* animation: correctAnimation 1s forwards; */
+  /* You can adjust timing here */
+}
+
+.correct-animation {
+  animation: correctAnimation 0.4s ease-out;
+}
+
+@keyframes correctAnimation {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    color: yellow;
+  }
+
+
+  100% {
+    transform: scale(4);
+    opacity: 0.01;
+    color: papayawhip;
+  }
+
+}
+
+
 @keyframes fadeAndShake {
   0% {
     color: red;

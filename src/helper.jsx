@@ -1,6 +1,7 @@
 import { generate } from "random-words";
-import wordsDictionary from './assets/words_dictionary.json';
-// import { findAllWords } from "./assets/driver";
+// import wordsDictionary from './assets/words_dictionary.json'; //  not using this anymore
+
+import wordsDictionary from './assets/dictionary.json';
 
 const isInVisited = (visited, position) => {
   return visited.some(item => JSON.stringify(item) === JSON.stringify(position));
@@ -27,6 +28,19 @@ function shuffleArray(array) {
 
 // TODO CHANGE THE ORDER OF THE WHILE LOOPS AND REMOVE THE CHARACTERS ALREADY IN THE LONGWORD FROM THE CHARACTERSET
 export function generateRandomBoard(rows, cols, longWords) {
+  let board = []
+  let answerList = []
+  do {
+    board = generateRandomBoardHelper(rows, cols, longWords)
+    answerList = findAllWords(board);
+  } while (answerList.length < 25)
+
+  console.log(answerList)
+  return board
+}
+
+
+function generateRandomBoardHelper(rows, cols, longWords) {
   const vowels = ["AEI", "AEIOU"];
   const consonants = ["TSRNLCDH", "BCDFGHJKLMNPQRSTVW"];
   // const niceConsonants = "RSTHLWC";
@@ -85,22 +99,53 @@ export function generateRandomBoard(rows, cols, longWords) {
       startPos = newPos;
     }
   }
-  let words = findAllWords(board);
-  console.log(words)
   return board;
 };
 
-function findAllWords(board) {
-  // rewrite the python function here 
-  // another comment
+
+function dfs(board, row, col, visited, curword, foundWords) {
+  if (row < 0 || col < 0 || row >= board.length || col >= board.length || visited[row][col]) {
+    return;
+  }
+
+  visited[row][col] = true;
+  curword += board[row][col]
+
+  if (wordIsValid(curword.toLowerCase()) && curword.length > 3) {
+    foundWords.add(curword);
+  }
+
+  let neighbours = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
+  for (let [dx, dy] of neighbours) {
+    let newRow = row + dx;
+    let newCol = col + dy;
+    dfs(board, newRow, newCol, visited, curword, foundWords)
+  }
+
+  visited[row][col] = false
+  return
 }
 
-export const spelledCorrectly = (word) => {
-  console.log("word is: ", word)
-  if (word.length > 3 && wordsDictionary[word.toLowerCase()] == 1) {
-    console.log("this word is: legit")
-    return true
+function findAllWords(board) {
+  const visited = Array(board.length).fill(false).map(() => Array(board[0].length).fill(false));
+  const curword = ""
+  let foundWords = new Set()
+  for (let row = 0; row < board.length; ++row) {
+    for (let col = 0; col < board.length; ++col) {
+      dfs(board, row, col, visited, curword, foundWords)
+    }
+  }
+  return Array.from(foundWords)
+}
+
+export const wordIsValid = (word) => {
+  if (wordsDictionary[word.toLowerCase()] !== undefined) {
+    console.log("got in")
+    if (word.length > 3) {
+      console.log("legit word")
+      return true
+    }
   }
   return false
-
 }
+

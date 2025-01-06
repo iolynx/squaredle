@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard, spelledCorrectly } from "./helper.jsx"
+import { generateRandomBoard, wordIsValid } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -8,7 +8,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   // const [board, setBoard] = useState(() => generateRandomBoard(rows, cols));
   const [board, setBoard] = useState([]);
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [isAnimating, setIsAnimating] = useState("none")
   const [selectedPath, setSelectedPath] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [currentWord, setCurrentWord] = useState("->");
@@ -109,8 +109,8 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   };
 
   const triggerAnimation = () => {
-    setIsAnimating(false)
-    setTimeout(() => setIsAnimating(true), 10)
+    setIsAnimating('none')
+    setTimeout(() => setIsAnimating(), 1000)
   }
 
   const onMouseUp = () => {
@@ -122,13 +122,16 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       selectedWord += board[selectedPath[i][0]][selectedPath[i][1]];
     }
     console.log("Final Word: ", selectedWord);
-    if (spelledCorrectly(selectedWord)) {
-      setPoints((prevPoints) => prevPoints + selectedWord.length * 3);
-      setIsAnimating(false)
+
+    console.log(wordIsValid(selectedWord))
+    if (wordIsValid(selectedWord)) {
+      setPoints((prevPoints) => prevPoints + selectedWord.length * 2);
+      console.log(selectedWord, " is correct.")
+      setIsAnimating('correct')
     } else {
-      console.log('aimating')
-      triggerAnimation()
+      setIsAnimating('incorrect')
     }
+    setTimeout(() => setIsAnimating('none'), 1000)
     setSelectedPath([]);
   };
 
@@ -178,9 +181,14 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   return (
     <div style={{ alignItems: "center", justifyContent: "center" }}>
-      <h1>{points} points</h1>
 
-      <h1 className={isAnimating ? "shaking-fade" : ""}> {currentWord} </h1>
+
+      <div className="score-wrapper">
+        <h1 className="score old-score" >{points} points</h1>
+        <h1 className={"score animated-score " + (isAnimating === 'correct' ? "correct-animation" : "")}>{points} points</h1>
+      </div>
+
+      <h1 className={isAnimating === 'incorrect' ? "shaking-fade" : ""}> {currentWord} </h1>
 
       <div style={{ position: "relative", margin: "10px 95px" }}>
         <svg
