@@ -18,6 +18,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const [points, setPoints] = useState(0);
   const [foundWords, setFoundWords] = useState([]);
   const [totalWords, setTotalWords] = useState(0);
+  const [currentTile, setCurrentTile] = useState(null);
 
 
   // Helper function to generate the array
@@ -57,6 +58,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     setCols(cols);
     setPoints(0);
     setCurrentWord("-");
+    setFoundWords([])
     setDefaultStyle(generateArray(rows, cols));
     const lwToggle = document.getElementById('lwtoggle');
     if (lwToggle.checked) {
@@ -74,8 +76,31 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     setDefaultStyleAt(rowIndex, colIndex, false);
   };
 
+  useEffect(() => {
+    const handleTouchMove = (e) => {
+      e.preventDefault()
+      const touch = e.touches[0]
+      const { clientX, clientY } = touch;
+      const element = document.elementFromPoint(clientX, clientY)
+      if (element && element !== currentTile) {
+        setCurrentTile(element || null)
+        if (element.dataset.key) {
+          console.log("moved into new element, ", element.dataset.key[0], element.dataset.key[2])
+          setIsDragging(true)
+          onMouseMove(parseInt(element.dataset.key[0]), parseInt(element.dataset.key[2]))
+        }
+      }
+    }
+    document.addEventListener("touchmove", handleTouchMove)
+    return () => {
+      document.removeEventListener("touchmove", handleTouchMove)
+    }
+  }, [currentTile]);
+
   const onMouseMove = (rowIndex, colIndex) => {
     if (isDragging) {
+      console.log(defaultStyle)
+      console.log(selectedPath)
       setSelectedPath((prevPath) => {
         const lastPos = prevPath[prevPath.length - 1];
         const newPos = [rowIndex, colIndex];
@@ -215,8 +240,8 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
             position: "absolute",
             top: 0,
             left: 0,
-            width: '600px',
-            height: '600px',
+            width: '100vw',
+            height: '100vh',
             zIndex: 1,
             pointerEvents: "none",
             radius: "5px"
@@ -241,10 +266,12 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
         }}
           onMouseLeave={handleMouseLeave}
           onMouseUp={handleMouseUp}
+          onTouchEnd={handleMouseUp}
         >
           {board.map((row, rowIndex) =>
             row.map((char, colIndex) => (
               <Tile
+                dataKey={[rowIndex, colIndex]}
                 key={`${rowIndex}-${colIndex}`}
                 onMouseDown={() => onMouseDown(rowIndex, colIndex)}
                 onMouseMove={() => onMouseMove(rowIndex, colIndex)}

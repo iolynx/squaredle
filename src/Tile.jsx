@@ -1,9 +1,10 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // eslint-disable-next-line react/prop-types
-const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) => {
+const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) => {
   const [changeStyle, toggleStyle] = useState(!defaultStyle);
+  const elementRef = useRef(null)
 
   useEffect(() => {
     if (defaultStyle) {
@@ -13,6 +14,7 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
 
   function handleMouseEnter(e) {
     // console.log("mouse just entered");
+    console.log(k)
     if (e.buttons === 1) toggleStyle(true);
     else toggleStyle(false);
   }
@@ -26,19 +28,46 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
     // console.log(children);
     toggleStyle(true);
     // console.log("FRom child down", defaultStyle);
-    if (onMouseDown) onMouseDown();
+    onMouseDown();
   }
 
   function handleMouseUp() {
     // console.log("FRom child up: ", defaultStyle);
     toggleStyle(false);
-    if (onMouseUp) onMouseUp();
+    onMouseUp();
+  }
+
+  const handleTouchStart = () => {
+    const rect = elementRef.current.getBoundingClientRect()
+    elementRef.current.dataset.rect = JSON.stringify(rect)
+    toggleStyle(true)
+    onMouseDown()
+  }
+
+  function handleTouchMove(e) {
+    const rect = elementRef.current.getBoundingClientRect()
+    console.log("default style: ", defaultStyle, "for :", children)
+
+    const touch = e.touches[0];
+    const { clientX, clientY } = touch;
+
+    if (
+      clientX < rect.left ||
+      clientX > rect.right ||
+      clientY < rect.top ||
+      clientY > rect.bottom
+    ) {
+      toggleStyle(false)
+    }
+    else {
+      toggleStyle(true)
+    }
   }
 
 
   const handleTileStyle = (defaultStyle, changeStyle) => {
     if (!defaultStyle) {
-      if (changeStyle) {
+      if (changeStyle || !defaultStyle) {
         return {
           // backgroundColor: "red",
           // boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px",
@@ -68,6 +97,8 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
       style={handleTileStyle(defaultStyle, changeStyle)}
     >
       <div
+        ref={elementRef}
+        data-key={dataKey}
         style={{
           // padding: "10px 10px",
           height: "75px",
@@ -75,10 +106,13 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
 
         }}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
 
         onMouseMove={onMouseMove}
+        onTouchMove={handleTouchMove}
 
         onMouseUp={handleMouseUp}
+        onTouchEnd={handleMouseUp}
 
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}

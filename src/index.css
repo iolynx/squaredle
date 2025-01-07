@@ -13,6 +13,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+@media only screen and (max-width: 450px) {
+  max-width: 412px;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -27,8 +31,6 @@ body {
   margin: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 h1 {
@@ -105,7 +107,7 @@ textarea {
   background-image: linear-gradient(#4a4a4a 50%, #3f3d46 50%);
   background-size: 100% 4rem;
   border: 1px solid #CCC;
-  width: 250px;
+  width: 230px;
   line-height: 30px;
   margin: 0px 8px;
   resize: none;
@@ -114,4 +116,8 @@ textarea {
   color: white;
   padding: 4px 8px;
   height: 60px;
+}
+
+.tile h1{
+  pointer-events: none;
 }

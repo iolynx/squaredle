@@ -1,7 +1,12 @@
 import { generate } from "random-words";
 // import wordsDictionary from './assets/words_dictionary.json'; //  not using this anymore
 import wordsDictionary from './assets/dictionary.json';
-import commonWords from './assets/words.json'
+import words3 from './assets/words3.js'
+
+const wordObj = words3.reduce((obj, word) => {
+  obj[word] = 1;
+  return obj;
+}, {})
 
 let numberOfWords = 0;
 let answerList = []
@@ -40,7 +45,7 @@ export function generateRandomBoard(rows, cols, longWords) {
   do {
     board = generateRandomBoardHelper(rows, cols, longWords)
     answerList = findAllWords(board);
-  } while (answerList.length < 25)
+  } while (answerList.length < 12)
 
   numberOfWords = answerList.length
   console.log(answerList)
@@ -50,7 +55,7 @@ export function generateRandomBoard(rows, cols, longWords) {
 
 function generateRandomBoardHelper(rows, cols, longWords) {
   const vowels = ["AEI", "AEIOU"];
-  const consonants = ["TSRNLCDH", "BCDFGHJKLMNPQRSTVW"];
+  const consonants = ["TSRNLCKDWVBMH", "BCDFGHJKLMNPQRSTVW"];
   // const niceConsonants = "RSTHLWC";
   let v = vowels[0]
   let c = consonants[0];
@@ -123,7 +128,7 @@ function dfs(board, row, col, visited, curword, foundWords) {
     foundWords.add(curword);
   }
 
-  let neighbours = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]]
+  let neighbours = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]]
   for (let [dx, dy] of neighbours) {
     let newRow = row + dx;
     let newCol = col + dy;
@@ -147,7 +152,7 @@ function findAllWords(board) {
 }
 
 export const wordIsValid = (word) => {
-  if (wordsDictionary[word.toLowerCase()] !== undefined && commonWords[word.toLowerCase()] == 1) {
+  if (wordObj[word.toLowerCase()] !== undefined) {
     if (word.length > 3) {
       return true
     }
