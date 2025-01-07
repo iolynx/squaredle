@@ -1,7 +1,11 @@
 import { generate } from "random-words";
 // import wordsDictionary from './assets/words_dictionary.json'; //  not using this anymore
-
 import wordsDictionary from './assets/dictionary.json';
+import commonWords from './assets/words.json'
+
+let numberOfWords = 0;
+let answerList = []
+
 
 const isInVisited = (visited, position) => {
   return visited.some(item => JSON.stringify(item) === JSON.stringify(position));
@@ -26,15 +30,19 @@ function shuffleArray(array) {
 }
 
 
+export function getNumberOfWords() {
+  return numberOfWords;
+}
+
 // TODO CHANGE THE ORDER OF THE WHILE LOOPS AND REMOVE THE CHARACTERS ALREADY IN THE LONGWORD FROM THE CHARACTERSET
 export function generateRandomBoard(rows, cols, longWords) {
   let board = []
-  let answerList = []
   do {
     board = generateRandomBoardHelper(rows, cols, longWords)
     answerList = findAllWords(board);
   } while (answerList.length < 25)
 
+  numberOfWords = answerList.length
   console.log(answerList)
   return board
 }
@@ -139,10 +147,8 @@ function findAllWords(board) {
 }
 
 export const wordIsValid = (word) => {
-  if (wordsDictionary[word.toLowerCase()] !== undefined) {
-    console.log("got in")
+  if (wordsDictionary[word.toLowerCase()] !== undefined && commonWords[word.toLowerCase()] == 1) {
     if (word.length > 3) {
-      console.log("legit word")
       return true
     }
   }

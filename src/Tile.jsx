@@ -75,8 +75,11 @@ const Tile = ({ onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) =
 
         }}
         onMouseDown={handleMouseDown}
+
         onMouseMove={onMouseMove}
+
         onMouseUp={handleMouseUp}
+
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
       >

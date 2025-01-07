@@ -193,7 +193,7 @@ input:checked+.slider:before {
 }
 
 .correct-animation {
-  animation: correctAnimation 0.4s ease-out;
+  animation: correctAnimation 0.4s ease-out ;
 }
 
 @keyframes correctAnimation {
@@ -239,4 +239,8 @@ input:checked+.slider:before {
 
 .shaking-fade {
   animation: fadeAndShake 0.4s ease-in-out forwards;
+}
+
+.invis {
+  display: none;
 }

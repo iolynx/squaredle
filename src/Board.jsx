@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard, wordIsValid } from "./helper.jsx"
+import { generateRandomBoard, getNumberOfWords, wordIsValid } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -11,11 +11,14 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const [isAnimating, setIsAnimating] = useState("none")
   const [selectedPath, setSelectedPath] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentWord, setCurrentWord] = useState("->");
+  const [currentWord, setCurrentWord] = useState("-");
   const [rows, setRows] = useState(initialRows);
   const [cols, setCols] = useState(initialCols);
   const [defaultStyle, setDefaultStyle] = useState([]);
   const [points, setPoints] = useState(0);
+  const [foundWords, setFoundWords] = useState([]);
+  const [totalWords, setTotalWords] = useState(0);
+
 
   // Helper function to generate the array
   const generateArray = (rows, cols, initialValue = true) => {
@@ -43,19 +46,26 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     setDefaultStyle(newArray);
   };
 
+  const generateBoardFromCode = () => {
+    const boardCode = document.getElementById("boardcode").value;
+    console.log("Board Code: ", boardCode)
+  }
+
 
   const regenerateBoard = (rows, cols) => {
     setRows(rows);
     setCols(cols);
     setPoints(0);
-    setCurrentWord("");
+    setCurrentWord("-");
     setDefaultStyle(generateArray(rows, cols));
     const lwToggle = document.getElementById('lwtoggle');
     if (lwToggle.checked) {
       console.log("long words enabled");
     }
-    setBoard(generateRandomBoard(rows, cols, lwToggle.checked));
+    setBoard(generateRandomBoard(rows, cols, lwToggle.checked));;
+    setTotalWords(getNumberOfWords())
     setSelectedPath([]);
+    setFoundWords([])
   };
 
   const onMouseDown = (rowIndex, colIndex) => {
@@ -124,9 +134,14 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     console.log("Final Word: ", selectedWord);
 
     console.log(wordIsValid(selectedWord))
+    console.log(foundWords)
     if (wordIsValid(selectedWord)) {
+      if (foundWords.includes(selectedWord)) {
+        return
+      }
       setPoints((prevPoints) => prevPoints + selectedWord.length * 2);
       console.log(selectedWord, " is correct.")
+      setFoundWords([...foundWords, selectedWord])
       setIsAnimating('correct')
     } else {
       setIsAnimating('incorrect')
@@ -182,13 +197,17 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   return (
     <div style={{ alignItems: "center", justifyContent: "center" }}>
 
-
-      <div className="score-wrapper">
-        <h1 className="score old-score" >{points} points</h1>
-        <h1 className={"score animated-score " + (isAnimating === 'correct' ? "correct-animation" : "")}>{points} points</h1>
+      <div>
+        <h1> {foundWords.length} / {totalWords} words </h1>
       </div>
 
-      <h1 className={isAnimating === 'incorrect' ? "shaking-fade" : ""}> {currentWord} </h1>
+
+      <div className="score-wrapper">
+        <h1 className={"score old-score " + (isAnimating === 'correct' ? "" : "invis")} >{points} points</h1>
+        <h1 className={"score animated-score " + (isAnimating === 'correct' ? "correct-animation" : "invis")}>{points} points</h1>
+        <h1 className={isAnimating === 'incorrect' ? "shaking-fade" : isAnimating === 'correct' ? "invis" : ""}> {currentWord} </h1>
+      </div>
+
 
       <div style={{ position: "relative", margin: "10px 95px" }}>
         <svg
@@ -261,9 +280,9 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
           <hr />
           <div style={{ alignItems: "center", display: "inline" }}>
             <h3> Board Code: </h3>
-            <textarea />
+            <textarea id="boardcode" />
             <br />
-            <button>
+            <button onClick={() => generateBoardFromCode()}>
               Go!
             </button>
           </div>
