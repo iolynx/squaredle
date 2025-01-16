@@ -77,6 +77,13 @@ button:focus-visible {
   }
 }
 
+.text-button{
+  border: none;
+  font-size: 50px;
+  font-weight: 5pt;
+  background-color: #242424;
+}
+
 fieldset {
   border: 3px solid white;
   border-radius: 10px;

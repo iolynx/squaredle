@@ -1,0 +1,14 @@
+TODO:
+breaking:
+fix the phone bug
+
+non breaking:
+add removing letters when they are no longer used in any words
+check if all the words in a grid are used in some word
+
+feat:
+add generating board from code
+add generating board from random hash
+remove the total number of words
+fade current word after finish 
+

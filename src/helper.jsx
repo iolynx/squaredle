@@ -8,7 +8,6 @@ const wordObj = words3.reduce((obj, word) => {
   return obj;
 }, {})
 
-let numberOfWords = 0;
 let answerList = []
 
 
@@ -34,9 +33,12 @@ function shuffleArray(array) {
   return array;
 }
 
+export function getAllWords() {
+  return answerList;
+}
 
 export function getNumberOfWords() {
-  return numberOfWords;
+  return answerList.length;
 }
 
 // TODO CHANGE THE ORDER OF THE WHILE LOOPS AND REMOVE THE CHARACTERS ALREADY IN THE LONGWORD FROM THE CHARACTERSET
@@ -47,7 +49,6 @@ export function generateRandomBoard(rows, cols, longWords) {
     answerList = findAllWords(board);
   } while (answerList.length < 12)
 
-  numberOfWords = answerList.length
   console.log(answerList)
   return board
 }

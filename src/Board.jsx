@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard, getNumberOfWords, wordIsValid } from "./helper.jsx"
+import { generateRandomBoard, getAllWords, getNumberOfWords, wordIsValid } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -50,10 +50,20 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const generateBoardFromCode = () => {
     const boardCode = document.getElementById("boardcode").value;
     console.log("Board Code: ", boardCode)
+    // TODO: FINISH THIS
+  }
+
+  const showAllWords = () => {
+    const a = getAllWords();
+    console.log(a);
+    alert(a);
   }
 
 
   const regenerateBoard = (rows, cols) => {
+    if (!confirm("Do you want to create a new Board? (This will delete all your progress)")) {
+      return;
+    }
     setRows(rows);
     setCols(cols);
     setPoints(0);
@@ -65,7 +75,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       console.log("long words enabled");
     }
     setBoard(generateRandomBoard(rows, cols, lwToggle.checked));;
-    setTotalWords(getNumberOfWords())
+    setTotalWords(getNumberOfWords());
     setSelectedPath([]);
     setFoundWords([])
   };
@@ -101,6 +111,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     if (isDragging) {
       console.log(defaultStyle)
       console.log(selectedPath)
+      if (selectedPath === undefined) { return; }
       setSelectedPath((prevPath) => {
         const lastPos = prevPath[prevPath.length - 1];
         const newPos = [rowIndex, colIndex];
@@ -127,6 +138,9 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
         }
 
         // Check if the new position is one cell away from the last position
+        if (lastPos === undefined) {
+          return;
+        }
         if (Math.abs(lastPos[0] - rowIndex) <= 1 && Math.abs(lastPos[1] - colIndex) <= 1) {
           let selectedWord = "";
           for (let i = 0; i < prevPath.length; ++i) {
@@ -143,11 +157,6 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     }
   };
 
-  const triggerAnimation = () => {
-    setIsAnimating('none')
-    setTimeout(() => setIsAnimating(), 1000)
-  }
-
   const onMouseUp = () => {
     // setDefaultStyle(true);
     setDefaultStyleAll(true);
@@ -162,6 +171,9 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     console.log(foundWords)
     if (wordIsValid(selectedWord)) {
       if (foundWords.includes(selectedWord)) {
+        const cw = currentWord;
+        setCurrentWord("Already found.");
+        setTimeout(() => setCurrentWord(cw), 1400);
         return
       }
       setPoints((prevPoints) => prevPoints + selectedWord.length * 2);
@@ -189,6 +201,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
 
   const renderPath = () => {
+    if (selectedPath === undefined) { return; }
     if (selectedPath.length > 1) {
       // console.log(pos);
       const mul = 130;
@@ -223,7 +236,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     <div style={{ alignItems: "center", justifyContent: "center" }}>
 
       <div>
-        <h1> {foundWords.length} / {totalWords} words </h1>
+        <button className="text-button" onClick={() => showAllWords()} > {foundWords.length} / {totalWords} words </button>
       </div>
 
 
