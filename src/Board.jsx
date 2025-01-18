@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard, getAllWords, getNumberOfWords, wordIsValid } from "./helper.jsx"
+import { generateRandomBoard, getAllWords, getNumberOfWords, wordIsValid, generateCodeBoard, updateLetterFrequencies, getCellFrequencies } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -19,6 +19,8 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const [foundWords, setFoundWords] = useState([]);
   const [totalWords, setTotalWords] = useState(0);
   const [currentTile, setCurrentTile] = useState(null);
+  const [cellFrequencies, setCellFrequencies] = useState([]);
+  const [allWords, setAllWords] = useState([])
 
 
   // Helper function to generate the array
@@ -28,7 +30,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   // Regenerate the array when rows or cols changes
   useEffect(() => {
-    setDefaultStyle(generateArray(rows, cols));
+    setDefaultStyleAll(true);
   }, [rows, cols]);
 
   const setDefaultStyleAt = (rowIndex, colIndex, value) => {
@@ -50,13 +52,28 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const generateBoardFromCode = () => {
     const boardCode = document.getElementById("boardcode").value;
     console.log("Board Code: ", boardCode)
-    // TODO: FINISH THIS
+    const n = boardCode.length
+    console.log("n: ", n)
+    if (Math.sqrt(n) % 1 !== 0) {
+      alert("Error: Rows and Columns aren't the same length")
+      return
+    }
+    setRows(Math.sqrt(n))
+    setCols(Math.sqrt(n))
+    setBoard(generateCodeBoard(boardCode))
+    setPoints(0)
+    setCurrentWord("-");
+    setFoundWords([]);
+
+    setAllWords(getAllWords());
+    setTotalWords(allWords.length);
+    setSelectedPath([]);
+    setDefaultStyleAll(true)
+    setCellFrequencies(getCellFrequencies());
   }
 
   const showAllWords = () => {
-    const a = getAllWords();
-    console.log(a);
-    alert(a);
+    alert(allWords);
   }
 
 
@@ -75,9 +92,11 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       console.log("long words enabled");
     }
     setBoard(generateRandomBoard(rows, cols, lwToggle.checked));;
-    setTotalWords(getNumberOfWords());
+    setAllWords(getAllWords())
+    console.log(allWords)
+    setTotalWords(allWords.length);
     setSelectedPath([]);
-    setFoundWords([])
+    setCellFrequencies(getCellFrequencies());
   };
 
   const onMouseDown = (rowIndex, colIndex) => {
@@ -109,8 +128,6 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   const onMouseMove = (rowIndex, colIndex) => {
     if (isDragging) {
-      console.log(defaultStyle)
-      console.log(selectedPath)
       if (selectedPath === undefined) { return; }
       setSelectedPath((prevPath) => {
         const lastPos = prevPath[prevPath.length - 1];
@@ -168,7 +185,6 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     console.log("Final Word: ", selectedWord);
 
     console.log(wordIsValid(selectedWord))
-    console.log(foundWords)
     if (wordIsValid(selectedWord)) {
       if (foundWords.includes(selectedWord)) {
         const cw = currentWord;
@@ -179,6 +195,9 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       setPoints((prevPoints) => prevPoints + selectedWord.length * 2);
       console.log(selectedWord, " is correct.")
       setFoundWords([...foundWords, selectedWord])
+      console.log('cf beforebefore: ', cellFrequencies)
+      setCellFrequencies(updateLetterFrequencies(cellFrequencies, selectedPath))
+      console.log('letterFrequencies: ', cellFrequencies)
       setIsAnimating('correct')
     } else {
       setIsAnimating('incorrect')
@@ -189,14 +208,18 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   function handleMouseLeave() {
     setDefaultStyleAll(true);
-    setIsDragging(false);
     setSelectedPath([]);
+    if (isDragging) {
+      setIsDragging(false);
+      onMouseUp()
+    }
   }
 
   function handleMouseUp() {
     setDefaultStyleAll(true);
     setIsDragging(false);
     setSelectedPath([]);
+    onMouseUp();
   }
 
 
@@ -290,6 +313,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
                 onMouseMove={() => onMouseMove(rowIndex, colIndex)}
                 onMouseUp={onMouseUp}
                 defaultStyle={defaultStyle[rowIndex][colIndex]}
+                cellFrequency={cellFrequencies[rowIndex][colIndex]}
               >
                 {char}
               </Tile>

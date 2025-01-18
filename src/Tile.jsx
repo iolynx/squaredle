@@ -2,7 +2,7 @@ import './App.css';
 import { useState, useEffect, useRef } from 'react';
 
 // eslint-disable-next-line react/prop-types
-const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultStyle }) => {
+const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultStyle, cellFrequency }) => {
   const [changeStyle, toggleStyle] = useState(!defaultStyle);
   const elementRef = useRef(null)
 
@@ -83,12 +83,19 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
       }
     }
     // toggleStyle(false);
-    return {
-      // backgroundColor: "black",
-      // boxShadow: "2px 2px black",
-      cursor: "pointer",
-      userSelect: "none", // Prevent text selection
-      position: "relative",
+    if (cellFrequency === 0) {
+      return {
+        color: "rgb(0, 0, 0)",
+        backgroundColor: "rgb(35, 35, 40)"
+      }
+    } else {
+      return {
+        // backgroundColor: "black",
+        // boxShadow: "2px 2px black",
+        cursor: "pointer",
+        userSelect: "none", // Prevent text selection
+        position: "relative",
+      }
     }
   };
 
@@ -120,6 +127,9 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
         <h1 style={{ margin: "0px" }}>
           {children}
         </h1>
+        <p>
+          {cellFrequency}
+        </p>
       </div>
     </div>
   );

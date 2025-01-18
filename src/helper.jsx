@@ -2,13 +2,27 @@ import { generate } from "random-words";
 // import wordsDictionary from './assets/words_dictionary.json'; //  not using this anymore
 import wordsDictionary from './assets/dictionary.json';
 import words3 from './assets/words3.js'
+import words2 from './assets/words.json'
+
+const commonwords = Object.keys(words2).reduce((acc, key) => {
+  acc[key.toLowerCase()] = words2[key];
+  return acc;
+}, {});
 
 const wordObj = words3.reduce((obj, word) => {
   obj[word] = 1;
   return obj;
 }, {})
 
-let answerList = []
+var answerList = []
+
+var globalVisited = []
+
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const letterFrequency = {};
+for (const letter of alphabet) {
+  letterFrequency[letter] = 0;
+}
 
 
 const isInVisited = (visited, position) => {
@@ -49,6 +63,43 @@ export function generateRandomBoard(rows, cols, longWords) {
     answerList = findAllWords(board);
   } while (answerList.length < 12)
 
+  console.log(answerList)
+  return board
+}
+
+export function updateLetterFrequencies(cf, selectedPath) {
+  console.log('selectedPath: ', selectedPath)
+  console.log('cf before: ', cf)
+  // for (let i = 0; i < selectedPath.length; ++i) {
+  //   cf[selectedPath[i][0]][selectedPath[i][1]] -= 1;
+  // }
+  // console.log(cf)
+  const cfCopy = cf.map(row => [...row]);
+  for (let i = 0; i < selectedPath.length; ++i) {
+    cfCopy[selectedPath[i][0]][selectedPath[i][1]] -= 1;
+  }
+
+  console.log('Updated cf:', cfCopy);
+  return cfCopy;
+}
+
+export function getCellFrequencies() {
+  return globalVisited
+}
+
+export function generateCodeBoard(code) {
+  const length = Math.sqrt(code.length)
+  const board = []
+  let sub = 0
+  for (let k = 0; k < length; ++k) {
+    var row = []
+    for (let i = 0; i < length; ++i) {
+      row.push(code[sub].toUpperCase())
+      sub++
+    }
+    board.push(row)
+  }
+  answerList = findAllWords(board);
   console.log(answerList)
   return board
 }
@@ -127,6 +178,7 @@ function dfs(board, row, col, visited, curword, foundWords) {
 
   if (wordIsValid(curword.toLowerCase()) && curword.length > 3) {
     foundWords.add(curword);
+    addVisitedToGlobal(globalVisited, visited)
   }
 
   let neighbours = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]]
@@ -142,6 +194,7 @@ function dfs(board, row, col, visited, curword, foundWords) {
 
 function findAllWords(board) {
   const visited = Array(board.length).fill(false).map(() => Array(board[0].length).fill(false));
+  globalVisited = Array(board.length).fill(false).map(() => Array(board[0].length).fill(0));
   const curword = ""
   let foundWords = new Set()
   for (let row = 0; row < board.length; ++row) {
@@ -153,7 +206,8 @@ function findAllWords(board) {
 }
 
 export const wordIsValid = (word) => {
-  if (wordObj[word.toLowerCase()] !== undefined) {
+  const wordlc = word.toLowerCase()
+  if (wordObj[wordlc] !== undefined && wordlc in commonwords) {
     if (word.length > 3) {
       return true
     }
@@ -161,3 +215,17 @@ export const wordIsValid = (word) => {
   return false
 }
 
+function addVisitedToGlobal(globalVisited, visited) {
+  const rows = globalVisited.length;
+  const cols = globalVisited[0].length;
+
+  // Iterate through the rows and columns
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      // Convert true/false in `visited` to 1/0 and add it to `globalVisited`
+      globalVisited[i][j] += visited[i][j] ? 1 : 0;
+    }
+  }
+
+  // return globalVisited// Return the updated globalVisited
+}
