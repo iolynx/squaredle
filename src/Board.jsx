@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard, getAllWords, getNumberOfWords, wordIsValid, generateCodeBoard, updateLetterFrequencies, getCellFrequencies } from "./helper.jsx"
+import { generateRandomBoard, getAllWords, updateStartFrequencies, wordIsValid, generateCodeBoard, updateLetterFrequencies, getCellFrequencies, getStartingLetterFrequencies } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -20,6 +20,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   const [totalWords, setTotalWords] = useState(0);
   const [currentTile, setCurrentTile] = useState(null);
   const [cellFrequencies, setCellFrequencies] = useState([]);
+  const [startFrequencies, setStartFrequencies] = useState([]);
   const [allWords, setAllWords] = useState([])
 
 
@@ -91,12 +92,15 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
     if (lwToggle.checked) {
       console.log("long words enabled");
     }
-    setBoard(generateRandomBoard(rows, cols, lwToggle.checked));;
-    setAllWords(getAllWords())
-    console.log(allWords)
-    setTotalWords(allWords.length);
+    const [b, anslist] = generateRandomBoard(rows, cols, lwToggle.checked);
+    setBoard(b);
+    setAllWords(anslist)
+    setTotalWords(anslist.length);
     setSelectedPath([]);
     setCellFrequencies(getCellFrequencies());
+    setStartFrequencies(getStartingLetterFrequencies());
+    console.log(cellFrequencies);
+    console.log(anslist);
   };
 
   const onMouseDown = (rowIndex, colIndex) => {
@@ -197,6 +201,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       setFoundWords([...foundWords, selectedWord])
       console.log('cf beforebefore: ', cellFrequencies)
       setCellFrequencies(updateLetterFrequencies(cellFrequencies, selectedPath))
+      setStartFrequencies(updateStartFrequencies(startFrequencies, selectedPath))
       console.log('letterFrequencies: ', cellFrequencies)
       setIsAnimating('correct')
     } else {
@@ -314,6 +319,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
                 onMouseUp={onMouseUp}
                 defaultStyle={defaultStyle[rowIndex][colIndex]}
                 cellFrequency={cellFrequencies[rowIndex][colIndex]}
+                startFrequency={startFrequencies[rowIndex][colIndex]}
               >
                 {char}
               </Tile>

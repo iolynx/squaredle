@@ -18,6 +18,8 @@ var answerList = []
 
 var globalVisited = []
 
+var globalStartingLetter = []
+
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const letterFrequency = {};
 for (const letter of alphabet) {
@@ -47,10 +49,12 @@ function shuffleArray(array) {
   return array;
 }
 
+// deprecated
 export function getAllWords() {
   return answerList;
 }
 
+// deprecated
 export function getNumberOfWords() {
   return answerList.length;
 }
@@ -60,11 +64,18 @@ export function generateRandomBoard(rows, cols, longWords) {
   let board = []
   do {
     board = generateRandomBoardHelper(rows, cols, longWords)
+    console.log('board obtained')
     answerList = findAllWords(board);
   } while (answerList.length < 12)
 
-  console.log(answerList)
-  return board
+  return [board, answerList]
+}
+
+export function updateStartFrequencies(sf, selectedPath) {
+  const sfCopy = sf.map(row => [...row]);
+  sfCopy[selectedPath[0][0]][selectedPath[0][1]] -= 1;
+
+  return sfCopy;
 }
 
 export function updateLetterFrequencies(cf, selectedPath) {
@@ -84,7 +95,11 @@ export function updateLetterFrequencies(cf, selectedPath) {
 }
 
 export function getCellFrequencies() {
-  return globalVisited
+  return globalVisited;
+}
+
+export function getStartingLetterFrequencies() {
+  return globalStartingLetter;
 }
 
 export function generateCodeBoard(code) {
@@ -113,6 +128,7 @@ function generateRandomBoardHelper(rows, cols, longWords) {
   let c = consonants[0];
   let board = []
 
+  console.log(rows, cols)
   for (let i = 0; i < rows; i++) {
     const row = []
     for (let j = 0; j < cols; j++) {
@@ -130,7 +146,6 @@ function generateRandomBoardHelper(rows, cols, longWords) {
         }
         randomChar = c[Math.floor(Math.random() * c.length)];
         c = c.replace(randomChar, '');
-        console.log("c is now: ", c);
       }
       row.push(randomChar);
     }
@@ -173,12 +188,18 @@ function dfs(board, row, col, visited, curword, foundWords) {
     return;
   }
 
-  visited[row][col] = true;
-  curword += board[row][col]
+  if (curword.length == 0) {
+    visited[row][col] = 2;
+  } else {
+    visited[row][col] = 1;
+  }
 
-  if (wordIsValid(curword.toLowerCase()) && curword.length > 3) {
+  curword += board[row][col];
+
+
+  if (wordIsValid(curword.toLowerCase()) && curword.length > 3 && !foundWords.has(curword)) {
     foundWords.add(curword);
-    addVisitedToGlobal(globalVisited, visited)
+    addVisitedToGlobal(globalVisited, globalStartingLetter, visited)
   }
 
   let neighbours = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]]
@@ -188,13 +209,14 @@ function dfs(board, row, col, visited, curword, foundWords) {
     dfs(board, newRow, newCol, visited, curword, foundWords)
   }
 
-  visited[row][col] = false
+  visited[row][col] = 0
   return
 }
 
 function findAllWords(board) {
-  const visited = Array(board.length).fill(false).map(() => Array(board[0].length).fill(false));
+  let visited = Array(board.length).fill(false).map(() => Array(board[0].length).fill(0));
   globalVisited = Array(board.length).fill(false).map(() => Array(board[0].length).fill(0));
+  globalStartingLetter = Array(board.length).fill(false).map(() => Array(board[0].length).fill(0));
   const curword = ""
   let foundWords = new Set()
   for (let row = 0; row < board.length; ++row) {
@@ -215,17 +237,23 @@ export const wordIsValid = (word) => {
   return false
 }
 
-function addVisitedToGlobal(globalVisited, visited) {
+function addVisitedToGlobal(globalVisited, globalStartingLetter, visited) {
   const rows = globalVisited.length;
   const cols = globalVisited[0].length;
 
   // Iterate through the rows and columns
+  console.log("added visited to global")
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       // Convert true/false in `visited` to 1/0 and add it to `globalVisited`
-      globalVisited[i][j] += visited[i][j] ? 1 : 0;
+      if (visited[i][j] === 2) {
+        globalVisited[i][j] += 1
+        globalStartingLetter[i][j] += 1
+      } else if (visited[i][j] == 1) {
+        globalVisited[i][j] += 1
+      }
+      // globalVisited[i][j] += visited[i][j] ? 1 : 0;
     }
   }
-
-  // return globalVisited// Return the updated globalVisited
+  // return globalVisited
 }

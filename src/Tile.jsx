@@ -2,7 +2,7 @@ import './App.css';
 import { useState, useEffect, useRef } from 'react';
 
 // eslint-disable-next-line react/prop-types
-const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultStyle, cellFrequency }) => {
+const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultStyle, cellFrequency, startFrequency }) => {
   const [changeStyle, toggleStyle] = useState(!defaultStyle);
   const elementRef = useRef(null)
 
@@ -124,12 +124,15 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
       >
-        <h1 style={{ margin: "0px" }}>
-          {children}
-        </h1>
-        <p>
-          {cellFrequency}
-        </p>
+        <div style={{ display: 'block' }}>
+          <h1 style={{ margin: "0px" }}>
+            {children}
+          </h1>
+          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={{ color: 'red', margin: 0 }}>{startFrequency ? startFrequency : ''}</p>
+            <span style={{ display: 'inline' }}>{cellFrequency}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
