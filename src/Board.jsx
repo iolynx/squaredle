@@ -202,6 +202,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       console.log('cf beforebefore: ', cellFrequencies)
       setCellFrequencies(updateLetterFrequencies(cellFrequencies, selectedPath))
       setStartFrequencies(updateStartFrequencies(startFrequencies, selectedPath))
+      console.log(startFrequencies)
       console.log('letterFrequencies: ', cellFrequencies)
       setIsAnimating('correct')
     } else {

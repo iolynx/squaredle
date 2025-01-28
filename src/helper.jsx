@@ -49,16 +49,6 @@ function shuffleArray(array) {
   return array;
 }
 
-// deprecated
-export function getAllWords() {
-  return answerList;
-}
-
-// deprecated
-export function getNumberOfWords() {
-  return answerList.length;
-}
-
 // TODO CHANGE THE ORDER OF THE WHILE LOOPS AND REMOVE THE CHARACTERS ALREADY IN THE LONGWORD FROM THE CHARACTERSET
 export function generateRandomBoard(rows, cols, longWords) {
   let board = []
@@ -66,7 +56,8 @@ export function generateRandomBoard(rows, cols, longWords) {
     board = generateRandomBoardHelper(rows, cols, longWords)
     console.log('board obtained')
     answerList = findAllWords(board);
-  } while (answerList.length < 12)
+  } while (answerList.length < 12 && !globalVisited.includes(0))
+  // if any bugs come its because of ^^^^^^^^^^^^^^^^^^^^^^^^^^^ this line (newest)
 
   return [board, answerList]
 }
@@ -241,15 +232,15 @@ function addVisitedToGlobal(globalVisited, globalStartingLetter, visited) {
   const rows = globalVisited.length;
   const cols = globalVisited[0].length;
 
-  // Iterate through the rows and columns
-  console.log("added visited to global")
+  // Iterate through the rows and columns to add the number of repeating elements
+  console.log("added to visited");
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      // Convert true/false in `visited` to 1/0 and add it to `globalVisited`
+      // if visited == 2, its the starting
       if (visited[i][j] === 2) {
         globalVisited[i][j] += 1
         globalStartingLetter[i][j] += 1
-      } else if (visited[i][j] == 1) {
+      } else if (visited[i][j] == 1) {  // else its in the middle
         globalVisited[i][j] += 1
       }
       // globalVisited[i][j] += visited[i][j] ? 1 : 0;
