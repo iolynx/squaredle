@@ -14,7 +14,6 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
 
   function handleMouseEnter(e) {
     // console.log("mouse just entered");
-    console.log(k)
     if (e.buttons === 1) toggleStyle(true);
     else toggleStyle(false);
   }

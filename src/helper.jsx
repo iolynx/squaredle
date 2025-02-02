@@ -3,6 +3,7 @@ import { generate } from "random-words";
 import wordsDictionary from './assets/dictionary.json';
 import words3 from './assets/words3.js'
 import words2 from './assets/words.json'
+import seedrandom from 'seedrandom'
 
 const commonwords = Object.keys(words2).reduce((acc, key) => {
   acc[key.toLowerCase()] = words2[key];
@@ -50,15 +51,28 @@ function shuffleArray(array) {
 }
 
 // TODO CHANGE THE ORDER OF THE WHILE LOOPS AND REMOVE THE CHARACTERS ALREADY IN THE LONGWORD FROM THE CHARACTERSET
-export function generateRandomBoard(rows, cols, longWords) {
+export function generateRandomBoard(rows, cols, longWords, seed = 0) {
   let board = []
+  let prefix = "aab";
   do {
-    board = generateRandomBoardHelper(rows, cols, longWords)
-    console.log('board obtained')
+
+    if (seed == 0) {
+      board = generateRandomBoardHelper(rows, cols, longWords, Date.now().toString())
+    } else {
+      board = generateRandomBoardHelper(rows, cols, longWords, prefix + seed)
+      prefix += prefix.replace(prefix.at(0), prefix.at(2))
+    }
     answerList = findAllWords(board);
   } while (answerList.length < 12 && !globalVisited.includes(0))
   // if any bugs come its because of ^^^^^^^^^^^^^^^^^^^^^^^^^^^ this line (newest)
 
+
+  console.log("--------------------------------");
+  console.log("Out of board creation loop");
+  console.log('board obtained')
+  console.log('board: ', board)
+  console.log('answerList: ', answerList)
+  console.log('globalVisited: ', globalVisited);
   return [board, answerList]
 }
 
@@ -86,6 +100,7 @@ export function updateLetterFrequencies(cf, selectedPath) {
 }
 
 export function getCellFrequencies() {
+  console.log('globalVisited (from cf()): ', globalVisited);
   return globalVisited;
 }
 
@@ -107,17 +122,18 @@ export function generateCodeBoard(code) {
   }
   answerList = findAllWords(board);
   console.log(answerList)
-  return board
+  return [board, answerList]
 }
 
 
-function generateRandomBoardHelper(rows, cols, longWords) {
+function generateRandomBoardHelper(rows, cols, longWords, seed) {
   const vowels = ["AEI", "AEIOU"];
   const consonants = ["TSRNLCKDWVBMH", "BCDFGHJKLMNPQRSTVW"];
   // const niceConsonants = "RSTHLWC";
   let v = vowels[0]
   let c = consonants[0];
   let board = []
+  const random = seedrandom(seed);
 
   console.log(rows, cols)
   for (let i = 0; i < rows; i++) {
@@ -128,14 +144,14 @@ function generateRandomBoardHelper(rows, cols, longWords) {
         if (v.length == 0) {
           v = vowels[1];
         }
-        randomChar = v[Math.floor(Math.random() * v.length)];
+        randomChar = v[Math.floor(random() * v.length)];
         v = v.replace(randomChar, '');
       }
       else {
         if (c.length == 0) {
           c = consonants[1];
         }
-        randomChar = c[Math.floor(Math.random() * c.length)];
+        randomChar = c[Math.floor(random() * c.length)];
         c = c.replace(randomChar, '');
       }
       row.push(randomChar);

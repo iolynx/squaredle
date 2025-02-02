@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Tile from "./Tile";
-import { generateRandomBoard, getAllWords, updateStartFrequencies, wordIsValid, generateCodeBoard, updateLetterFrequencies, getCellFrequencies, getStartingLetterFrequencies } from "./helper.jsx"
+import { generateRandomBoard, updateStartFrequencies, wordIsValid, generateCodeBoard, updateLetterFrequencies, getCellFrequencies, getStartingLetterFrequencies } from "./helper.jsx"
 
 
 // eslint-disable-next-line react/prop-types
@@ -30,9 +30,9 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   };
 
   // Regenerate the array when rows or cols changes
-  useEffect(() => {
-    setDefaultStyleAll(true);
-  }, [rows, cols]);
+  // useEffect(() => {
+  //   setDefaultStyleAll(true);
+  // }, [rows, cols]);
 
   const setDefaultStyleAt = (rowIndex, colIndex, value) => {
     setDefaultStyle((prev) => {
@@ -52,25 +52,42 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
 
   const generateBoardFromCode = () => {
     const boardCode = document.getElementById("boardcode").value;
-    console.log("Board Code: ", boardCode)
-    const n = boardCode.length
+    console.log("Board Code: ", boardCode);
+    const n = boardCode.length;
     console.log("n: ", n)
-    if (Math.sqrt(n) % 1 !== 0) {
-      alert("Error: Rows and Columns aren't the same length")
-      return
-    }
-    setRows(Math.sqrt(n))
-    setCols(Math.sqrt(n))
-    setBoard(generateCodeBoard(boardCode))
-    setPoints(0)
-    setCurrentWord("-");
-    setFoundWords([]);
+    let b, answerList;
 
-    setAllWords(getAllWords());
-    setTotalWords(allWords.length);
+    if (boardCode[0] == '#') {
+      // if the boardcode is in the format #3asdlf , # means pseudorandom boards, 3 is the row/col width, and the remaining
+      // part of the string forms the pseudorandom generator seed.
+
+      console.log("Using pseudo random board generation...");
+      setRows(parseInt(boardCode[1]));
+      setCols(parseInt(boardCode[1]));
+      [b, answerList] = generateRandomBoard(boardCode[1], boardCode[1], false, boardCode.slice(2));
+    }
+    else {
+      if (Math.sqrt(n) % 1 !== 0) {
+        alert("Error: Rows and Columns aren't the same length (Hint: Use a square number)");
+        return;
+      }
+      setRows(Math.sqrt(n));
+      setCols(Math.sqrt(n));
+      [b, answerList] = generateCodeBoard(boardCode);
+    }
+
+
+    setPoints(0);
+    setCurrentWord("-");
+    setFoundWords([])
+    setBoard(b);
+    setAllWords(answerList);
+    setTotalWords(answerList.length);
     setSelectedPath([]);
-    setDefaultStyleAll(true)
+    setDefaultStyle(generateArray(rows, cols));
     setCellFrequencies(getCellFrequencies());
+    setStartFrequencies(getStartingLetterFrequencies());
+    console.log('CellFrequencies: ', cellFrequencies);
   }
 
   const showAllWords = () => {
