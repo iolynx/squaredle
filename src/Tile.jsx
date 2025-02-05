@@ -100,11 +100,11 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
 
   return (
     <div className="tile"
+      data-key={dataKey}
       style={handleTileStyle(defaultStyle, changeStyle)}
     >
       <div
         ref={elementRef}
-        data-key={dataKey}
         style={{
           // padding: "10px 10px",
           height: "75px",

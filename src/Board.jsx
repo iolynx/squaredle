@@ -132,12 +132,13 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
       const touch = e.touches[0]
       const { clientX, clientY } = touch;
       const element = document.elementFromPoint(clientX, clientY)
+      // console.log("touch recorded at ", touch)
       if (element && element !== currentTile) {
         setCurrentTile(element || null)
         if (element.dataset.key) {
-          console.log("moved into new element, ", element.dataset.key[0], element.dataset.key[2])
+          const tileKey = element.dataset.key;
           setIsDragging(true)
-          onMouseMove(parseInt(element.dataset.key[0]), parseInt(element.dataset.key[2]))
+          onMouseMove(parseInt(tileKey[0]), parseInt(tileKey[2]))
         }
       }
     }
@@ -331,6 +332,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
             row.map((char, colIndex) => (
               <Tile
                 dataKey={[rowIndex, colIndex]}
+                data-key={`${rowIndex}-${colIndex}`}
                 key={`${rowIndex}-${colIndex}`}
                 onMouseDown={() => onMouseDown(rowIndex, colIndex)}
                 onMouseMove={() => onMouseMove(rowIndex, colIndex)}
