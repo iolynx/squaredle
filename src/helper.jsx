@@ -4,6 +4,7 @@ import wordsDictionary from './assets/dictionary.json';
 import words3 from './assets/words3.js'
 import words2 from './assets/words.json'
 import seedrandom from 'seedrandom'
+// for dictionary use oxford 5000 or some shit
 
 const commonwords = Object.keys(words2).reduce((acc, key) => {
   acc[key.toLowerCase()] = words2[key];

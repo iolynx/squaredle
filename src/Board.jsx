@@ -129,10 +129,13 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
   useEffect(() => {
     const handleTouchMove = (e) => {
       e.preventDefault()
-      const touch = e.touches[0]
+      const touch = e.touches[0];
       const { clientX, clientY } = touch;
-      const element = document.elementFromPoint(clientX, clientY)
-      // console.log("touch recorded at ", touch)
+      const element = document.elementFromPoint(clientX, clientY);
+      // debug logs:
+      // console.log("touch recorded at ", touch);
+      // console.log("touch element: ", element);
+      // console.log("datapoint: ", element.dataset.key);
       if (element && element !== currentTile) {
         setCurrentTile(element || null)
         if (element.dataset.key) {
@@ -332,7 +335,7 @@ const Board = ({ initialRows = 3, initialCols = 3 }) => {
             row.map((char, colIndex) => (
               <Tile
                 dataKey={[rowIndex, colIndex]}
-                data-key={`${rowIndex}-${colIndex}`}
+                //data-key={`${rowIndex}-${colIndex}`}
                 key={`${rowIndex}-${colIndex}`}
                 onMouseDown={() => onMouseDown(rowIndex, colIndex)}
                 onMouseMove={() => onMouseMove(rowIndex, colIndex)}

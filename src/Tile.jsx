@@ -100,15 +100,15 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
 
   return (
     <div className="tile"
-      data-key={dataKey}
       style={handleTileStyle(defaultStyle, changeStyle)}
     >
       <div
+        className='content'
         ref={elementRef}
         style={{
           // padding: "10px 10px",
-          height: "75px",
-          width: "75px"
+          height: "85px",
+          width: "85px"
 
         }}
         onMouseDown={handleMouseDown}
@@ -123,7 +123,10 @@ const Tile = ({ dataKey, onMouseDown, onMouseMove, onMouseUp, children, defaultS
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
       >
-        <div style={{ display: 'block' }}>
+        <div
+          data-key={dataKey}
+          style={{ display: 'block' }}
+        >
           <h1 style={{ margin: "0px" }}>
             {children}
           </h1>
